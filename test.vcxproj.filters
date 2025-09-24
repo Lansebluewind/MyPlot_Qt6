@@ -24,6 +24,9 @@
     <Filter Include="Myplot">
       <UniqueIdentifier>{34d15170-9fa9-4601-841b-f1646814e687}</UniqueIdentifier>
     </Filter>
+    <Filter Include="附加文档">
+      <UniqueIdentifier>{ab78652f-a00f-43a2-93df-09614af50c77}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="test.qrc">
@@ -51,5 +54,10 @@
     <QtMoc Include="Myplot\myplot.h">
       <Filter>Myplot</Filter>
     </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md">
+      <Filter>附加文档</Filter>
+    </None>
   </ItemGroup>
 </Project>

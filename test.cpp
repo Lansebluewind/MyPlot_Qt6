@@ -103,7 +103,7 @@ test::test(QWidget* parent)
 			phase += 0.1;
 			if (phase > 2 * PI) phase = 0;
 		});
-	timer2->start(1);
+	timer2->start(16);
 
 	// 定时器动态更新数据
 	QTimer* timer1 = new QTimer(this);

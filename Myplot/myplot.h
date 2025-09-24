@@ -75,32 +75,49 @@ protected:
 
 	void mousePressEvent(QMouseEvent* event) override
 	{
-		setCoordinateDisplayEnabled(false); // 点击时隐藏坐标显示,以免遮挡菜单
 		if (event->button() == Qt::RightButton)
 		{
+			// 菜单弹出前，停止坐标提示的定时器并隐藏提示，防止冲突
+			if (m_tooltipTimer->isActive())
+			{
+				m_tooltipTimer->stop();
+			}
+			QToolTip::hideText();
+
 			if (!m_contextMenu)
 			{
 				m_contextMenu = new QMenu(this);
+				m_contextMenu->setWindowFlags(m_contextMenu->windowFlags() | Qt::WindowStaysOnTopHint); // 设置菜单在最上层显示
 				QAction* exportAction = m_contextMenu->addAction("导出为 CSV");
-				connect(exportAction, &QAction::triggered, this, [this]()
+				connect(exportAction, &QAction::triggered, this, &CustomChartView::exportCsvRequested);
+
+				// 当菜单即将隐藏时，重新触发一次鼠标移动事件来恢复坐标提示的逻辑
+				connect(m_contextMenu, &QMenu::aboutToHide, this, [this]()
 					{
-						// 这里实现导出CSV的逻辑
-						exportCsvRequested();
+						// 模拟一个鼠标移动事件，以恢复 tooltip 的状态
+						QPointF localPos = QPointF(m_lastMousePos);
+						QPointF screenPos = mapToGlobal(m_lastMousePos);
+						QMouseEvent* dummyEvent = new QMouseEvent(QEvent::MouseMove, localPos, screenPos, Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+						QApplication::postEvent(this, dummyEvent);
 					});
 			}
 			m_contextMenu->popup(event->globalPosition().toPoint());
 		}
-		QChartView::mousePressEvent(event);
+		else
+		{
+			QChartView::mousePressEvent(event);
+		}
 	}
 
 
 	// 重写鼠标移动事件，用于显示坐标
 	void mouseMoveEvent(QMouseEvent* event) override
 	{
-		setCoordinateDisplayEnabled(true); // 移动时显示坐标
-		// 如果右键菜单打开，关闭它
+		// 如果右键菜单可见，则不处理鼠标移动，防止意外关闭菜单
 		if (m_contextMenu && m_contextMenu->isVisible())
-			m_contextMenu->close();
+		{
+			return;
+		}
 
 		QChartView::mouseMoveEvent(event); // 先调用基类处理
 		m_lastMousePos = event->pos();
@@ -125,9 +142,6 @@ protected:
 			}
 		}
 	}
-
-
-
 };
 
 class MyPlot
